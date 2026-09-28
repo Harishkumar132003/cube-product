@@ -1,0 +1,39 @@
+# Secrets. `.env` has no slash, so it matches at every depth -- backend/.env,
+# docker/.env and docker/langfuse/.env are all covered by the first two lines.
+# Only the *.example files are tracked.
+.env
+.env.*
+!.env.example
+
+# Local state: the connection registry and secret.key, the Fernet key that
+# decrypts every stored database password.
+backend/var/
+
+# The generated Cube model. Rewritten wholesale on every run, and derived from
+# a real customer schema down to column-level PII descriptions. Runtime output,
+# not source.
+docker/cube/model/*
+!docker/cube/model/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# Agent tooling. Local to each machine: vendored skills restored by
+# `npx skills add`, plus per-developer permission settings.
+.agents/
+.claude/
+skills-lock.json
+
+# Internal design notes, kept out of the repo.
+plan.md

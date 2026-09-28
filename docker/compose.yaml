@@ -1,0 +1,38 @@
+services:
+  cube:
+    image: cubejs/cube:latest
+    container_name: cube-product-cube
+    ports:
+      # Playground + REST/GraphQL API
+      - "4000:4000"
+      # Postgres-wire SQL API, used later by the validation loop
+      - "15432:15432"
+    env_file:
+      - .env
+    # The database usually runs on the host or in another compose project, so
+    # host.docker.internal has to be mapped explicitly on Linux.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      CUBEJS_DEV_MODE: "true"
+      CUBEJS_LOG_LEVEL: "info"
+      # The generated model is mounted read-only; the renderer writes to ./cube/model
+      CUBEJS_SCHEMA_PATH: "model"
+      CUBEJS_PG_SQL_PORT: "15432"
+    volumes:
+      - ./cube/model:/cube/conf/model
+      - cube-store:/cube/conf/.cubestore
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://localhost:4000/readyz', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+volumes:
+  cube-store:
